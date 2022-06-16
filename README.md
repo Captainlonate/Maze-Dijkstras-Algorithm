@@ -1,46 +1,26 @@
-# Getting Started with Create React App
+# Solving a maze with Dijkstra's Algorithm
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This is a react & typescript website. When given some maze data, it will solve the maze and render the solution in a `<canvas>`. 
 
-## Available Scripts
+__The final thing looks like this:__
 
-In the project directory, you can run:
+<img src='./readme_images/maze_screenshot.png' alt='Screenshot of the maze' />
 
-### `npm start`
+The maze is converted into a weighted graph data structure, where the nodes of the graph are the "junction points" / "decision points" of the maze. The app will render little markers on the junction point cells (the circles in the picture above), so you can see the nodes of the graph. If you toggle off rendering of the maze, you can more easily see the graph (the nodes and edges).
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+<img src='./readme_images/maze_junctions.png' alt='Maze showing only junctions' />
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+Next, Dijkstra's algorithm will find the shortest path to all nodes in the graph, but we're interested in the one to the end cell of the maze.
 
-### `npm test`
+## Details
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+- The app makes use of several data structures, which can be found in `/src/classes/DataStructures`
+  - Graph (with it's GraphNode, GraphNodeLink)
+  - SortedLinkedList (which is used as a priority queue)
+  - DijkstrasPathLookupTable (which is what stores the shortest distance and path to each node)
+- The maze is first converted to a graph datastructure.
+  - That takes place in `/src/solveMaze/makeGraphFromMaze.ts`
+- The graph is analyzed with Dijkstra's Algorithm
+  - That takes place in `/src/solveDijkstras.ts`
+- I put basically all the other logic in `/src/classes/Maze.ts`
+- The React stuff is in `/src/components/`, but there isn't much interesting there except maybe the test maze data (the input to the `Maze.ts`)
