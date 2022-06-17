@@ -5,12 +5,13 @@ import TestMaze from './testMaze.json'
 import { useMazeContext } from './MazeControlContext'
 
 const MazeCanvas = () => {
-  const [mazeState, updateMazeState] = useMazeContext()
+  const [mazeState] = useMazeContext()
   const containerRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const mazeRef = useRef<Maze | null>(null)
 
   useEffect(() => {
+    // Only ever create the maze instance once (other useEffects can update it though)
     if (containerRef.current && canvasRef.current && !mazeRef.current) {
       const ctx = canvasRef.current.getContext('2d')
       if (ctx) {
@@ -20,6 +21,7 @@ const MazeCanvas = () => {
           ctx,
           JSON.parse(JSON.stringify(TestMaze))
         )
+        // Set what should be initially rendered
         mazeRef.current.updateWhatIsRendered(
           mazeState.render_maze,
           mazeState.render_junctions,
@@ -35,6 +37,9 @@ const MazeCanvas = () => {
     return () => {
       mazeRef.current?.unBindListeners()
     }
+    // I don't want to bind/unbind the listeners every time the mazeState changes
+    // This useEffect() is only the one-time, initialization
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   useEffect(() => {
@@ -46,6 +51,12 @@ const MazeCanvas = () => {
       )
     }
   }, [mazeState.render_maze, mazeState.render_junctions, mazeState.render_solution])
+
+  useEffect(() => {
+    if (mazeRef.current) {
+      mazeRef.current.updateMazeData(mazeState.activeMazeData)
+    }
+  }, [mazeState.activeMazeData])
 
   return (
     <div className="canvas__container" ref={containerRef}>

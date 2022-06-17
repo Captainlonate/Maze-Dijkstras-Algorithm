@@ -1,6 +1,6 @@
 import { isNonEmptyArray } from '../utils'
 import { Graph, GraphNode } from './DataStructures/Graph'
-import { TCell } from './types'
+import { TCell, TMazeData } from './types'
 import {
   makeGraphFromMaze,
   solveMazeGraphDijkstras
@@ -13,13 +13,6 @@ import {
 type TJunctionLineSegment = {
   from: TCell;
   to: TCell;
-}
-
-// The format that the maze data comes in from outside
-type TMazeData = {
-  maze: string[][],
-  startCell: TCell,
-  endCell: TCell
 }
 
 type MazeFlags = {
@@ -42,7 +35,8 @@ const COLORS: { [key: string]: string } = {
   'w': '#008080',
   'highlighted_fill': '#c788f8',
   'highlighted_stroke': '#c788f8',
-  'solution_stroke': '#f0f33b'
+  'solution_stroke': '#f0f33b',
+  'cell_index_text': '#333333'
 }
 
 // ================================================
@@ -185,7 +179,7 @@ class Maze {
           2 * Math.PI // end angle
         )
         // Write the text of the index of the cell ("4,3")
-        this.ctx.strokeStyle = '#222222'
+        this.ctx.strokeStyle = COLORS.cell_index_text
         this.ctx.strokeText(
           `${rowIdx},${colIdx}`,
           (colIdx * this.cellWidth) + (0.1 * this.cellWidth),
@@ -255,6 +249,20 @@ class Maze {
     this.flags.renderMaze = renderMaze
     this.flags.renderJunctions = renderJunctions
     this.flags.renderSolution = renderSolution
+    this.drawCanvas()
+  }
+
+  updateMazeData (newMazeData: TMazeData) {
+    try {
+      const clonedMazeData = JSON.parse(JSON.stringify(newMazeData))
+      this.mazeArray = clonedMazeData.maze
+      this.rootCellIndex = clonedMazeData.startCell
+      this.endCellIndex = clonedMazeData.endCell
+      this.parseMazeIntoGraph()
+      this.solveMaze()
+    } catch (error) {
+      console.log('Could not update (JSON.parse) new maze data!', newMazeData)
+    }
     this.drawCanvas()
   }
 

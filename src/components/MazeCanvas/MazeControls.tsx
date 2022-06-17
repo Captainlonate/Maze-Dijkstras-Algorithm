@@ -8,7 +8,13 @@ export const MazeControls = () => {
   const [mazeState, updateMazeState] = useMazeContext()
 
   const onCheck = (actionType: EMazeActionTypes) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    updateMazeState({ type: actionType, payload: e.target.checked })
+    if (
+      actionType === EMazeActionTypes.SET_RENDER_MAZE ||
+      actionType === EMazeActionTypes.SET_RENDER_JUNCTIONS ||
+      actionType === EMazeActionTypes.SET_RENDER_SOLUTION
+    ) {
+      updateMazeState({ type: actionType, payload: e.target.checked })
+    }
   }
 
   return (

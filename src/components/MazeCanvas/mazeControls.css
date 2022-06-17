@@ -23,4 +23,5 @@
 .mazecontrols__fieldgroup label {
   user-select: none;
   cursor: pointer;
+  color: #333333;
 }

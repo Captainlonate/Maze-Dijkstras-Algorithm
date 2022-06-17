@@ -1,4 +1,5 @@
 import MazeCanvas from '../MazeCanvas/MazeCanvas'
+import MazeDataField from '../MazeCanvas/MazeDataField'
 import { FixedImageLink } from '../FixedImageLink/FixedImageLink'
 import { MazeControls } from '../MazeCanvas/MazeControls'
 import { MazeProvider } from '../MazeCanvas/MazeControlContext'
@@ -20,6 +21,7 @@ const App = () => (
       <section className='maze_container'>
         <MazeCanvas />
       </section>
+      <MazeDataField />
     </MazeProvider>
     <section className='below_maze'>
       Below The Maze

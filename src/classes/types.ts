@@ -6,3 +6,9 @@ export type TCell = {
   rowIdx: number;
   colIdx: number;
 }
+
+export type TMazeData = {
+  maze: string[][],
+  startCell: TCell,
+  endCell: TCell
+}
