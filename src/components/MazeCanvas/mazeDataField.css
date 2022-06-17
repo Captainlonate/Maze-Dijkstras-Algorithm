@@ -1,6 +1,6 @@
 .mazedatafield {
   width: 100%;
-  padding: 15px 30px 30px;
+  padding: 15px 30px 45px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -30,12 +30,16 @@
 .mazedatafield__textarea {
   width: 100%;
   height: 250px;
-  color: #333333;
   border: 2px solid teal;
   padding: 4px;
   border-radius: 5px;
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   max-width: 1000px;
+  color: teal;
+}
+
+.mazedatafield__textarea.mazedatafield__textarea--error {
+  color: red;
 }
 
 .mazedatafield__errormessage {

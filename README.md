@@ -1,5 +1,7 @@
 # Solving a maze with Dijkstra's Algorithm
 
+You can find the site [here](https://mazesolve.pirated.technology/).
+
 This is a react & typescript website. When given some maze data, it will solve the maze and render the solution in a `<canvas>`. 
 
 The reason I built this is because I wanted to learn how Dijkstra's Algorithm works, and use it for something.

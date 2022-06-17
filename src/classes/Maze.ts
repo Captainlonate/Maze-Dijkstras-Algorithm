@@ -3,6 +3,7 @@ import { Graph, GraphNode } from './DataStructures/Graph'
 import { TCell, TMazeData } from './types'
 import {
   makeGraphFromMaze,
+  // solveMazeGraphBreadthFirst,
   solveMazeGraphDijkstras
 } from './solveMaze'
 
@@ -271,9 +272,12 @@ class Maze {
     if (this.graph) {
       // const pathFromStartToEnd: GraphNode[] = solveMazeGraphBreadthFirst(this.graph, this.mazeArray)
       const pathFromStartToEnd: GraphNode[] = solveMazeGraphDijkstras(this.graph, this.mazeArray)
-      this.pathFromStartToEndUI = pathFromStartToEnd.map((node) => ({
+      const solutionPath = pathFromStartToEnd.map((node) => ({
         rowIdx: node.rowIdx, colIdx: node.colIdx
       } as TCell))
+      // If there's no path, then it will return just the end cell,
+      // so only render the path if there are 2 or more cells
+      this.pathFromStartToEndUI = solutionPath.length > 1 ? solutionPath : []
     }
     this.drawCanvas()
   }

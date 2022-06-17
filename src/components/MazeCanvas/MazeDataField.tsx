@@ -41,7 +41,7 @@ const validateGrid = (grid: string[][]) => {
 const formatArrayPretty = (grid: string[][]): string => {
   let str = '['
   for (const row of grid) {
-    str += '\n  ["' + row.join('","') + '"],'
+    str += '\n  [ "' + row.join('", "') + '" ],'
   }
   str = str.slice(0, -1)
   str += '\n]'
@@ -129,7 +129,7 @@ const MazeDataField = () => {
       </div>
       <div className='mazedatafield__textarea__container'>
         <textarea
-          className='mazedatafield__textarea'
+          className={`mazedatafield__textarea${errorMessage ? ' mazedatafield__textarea--error' : ''}`}
           onChange={(e) => setDataStr(e.target.value)}
           value={textAreaText} />
       </div>
@@ -137,7 +137,7 @@ const MazeDataField = () => {
         {errorMessage}
       </div>
       <div className='mazedatafield__buttons'>
-        <button className='mazedatafield__button' onClick={onFormatOrSubmit(true)}>Use This Maze</button>
+        <button className='mazedatafield__button' onClick={onFormatOrSubmit(true)}>Render Maze</button>
         <button className='mazedatafield__button' onClick={onFormatOrSubmit(false)}>Format</button>
         <button className='mazedatafield__button' onClick={onResetTextArea}>Reset</button>
       </div>
