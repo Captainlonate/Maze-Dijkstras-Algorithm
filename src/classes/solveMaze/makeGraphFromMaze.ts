@@ -1,81 +1,52 @@
 import { Graph, GraphNode } from '../DataStructures/Graph'
 import { TCell } from '../types'
 
-// ========================Types====================
-
-interface IAnalyzedMazeCell {
-  isPath: boolean;
-  isEnd: boolean;
-  isStart: boolean;
-  isJunction: boolean;
-}
-
-// =================================================
-
 /*
-
+  If a user were solving the maze with a pencil, would the cell
+  be one where they could draw their line.
 */
-const cellIsPath = (val: any) => (
-  val === 'p' || val === 's' || val === 'e'
-)
+const cellIsWalkable = (val: string) => val !== 'w'
 
 /*
 
 */
 export const makeGraphFromMaze = (maze: string[][], rootCellIndex: TCell, endCellIndex: TCell): Graph => {
-  // The maze is a square (same length rows as columns)
-  const analyzedMaze: IAnalyzedMazeCell[][] = (new Array(maze.length)).fill(null).map(() => ([]))
-
-  // Graph
+  // Graph that will be populated and returned
   const graph = new Graph()
 
-  //
-  for (let rowIdx = 0; rowIdx < maze.length; rowIdx++) {
-    for (let colIdx = 0; colIdx < maze.length; colIdx++) {
-      const currentCellData = maze[rowIdx][colIdx]
-      const analyzedMazeCell: IAnalyzedMazeCell = {
-        isPath: cellIsPath(currentCellData),
-        isEnd: currentCellData === 'e',
-        isStart: currentCellData === 's',
-        isJunction: false
-      }
-      analyzedMaze[rowIdx].push(analyzedMazeCell)
-    }
-  }
-
-  //
+  //  These will help us remember nodes that we can link to
   let leftJunctionUnconnected: GraphNode | null = null
-  let topJunctions: (GraphNode | null)[] = (new Array(maze.length)).fill(null)
+  const topJunctions: (GraphNode | null)[] = (new Array(maze.length)).fill(null)
+
+  // Pre-declare these to avoid a lot of garbage collection (for large mazes)
+  let currentCellValue = ''
+  let canGoUp = false, canGoRight = false, canGoDown = false, canGoLeft = false, isAJunction = false;
 
   for (let rowIdx = 0; rowIdx < maze.length; rowIdx++) {
     // Forget the (horizontal) left unconnected junction at the start of each row
     leftJunctionUnconnected = null
     
-    for (let colIdx = 0; colIdx < maze.length; colIdx++) {
-      const currentCell = analyzedMaze[rowIdx][colIdx]
-      
-      const canGoUp = (rowIdx > 0) ? analyzedMaze[rowIdx - 1][colIdx].isPath : false
-      const canGoRight = (colIdx + 1 < maze.length) ? analyzedMaze[rowIdx][colIdx + 1].isPath : ''
-      const canGoDown = (rowIdx + 1 < maze.length) ? analyzedMaze[rowIdx + 1][colIdx].isPath : ''
-      const canGoleft = (colIdx > 0) ? analyzedMaze[rowIdx][colIdx - 1].isPath : ''
+    for (let colIdx = 0; colIdx < maze[rowIdx].length; colIdx++) {
+      currentCellValue = maze[rowIdx][colIdx]
 
-      if (!currentCell.isPath) {
+      canGoUp = (rowIdx > 0) ? cellIsWalkable(maze[rowIdx - 1][colIdx]) : false
+      canGoRight = (colIdx + 1 < maze.length) ? cellIsWalkable(maze[rowIdx][colIdx + 1]) : false
+      canGoDown = (rowIdx + 1 < maze.length) ? cellIsWalkable(maze[rowIdx + 1][colIdx]) : false
+      canGoLeft = (colIdx > 0) ? cellIsWalkable(maze[rowIdx][colIdx - 1]) : false
+
+      if (!cellIsWalkable(currentCellValue)) {
         leftJunctionUnconnected = null
         topJunctions[colIdx] = null
         continue
       }
 
-      const isAJunction = (
-        currentCell.isStart ||
-        currentCell.isEnd ||
-        (canGoUp && canGoleft) ||
-        (canGoUp && canGoRight) ||
-        (canGoDown && canGoleft) ||
-        (canGoDown && canGoRight)
+      isAJunction = (
+        currentCellValue === 's' ||
+        currentCellValue === 'e' ||
+        ((canGoUp || canGoDown) && (canGoLeft || canGoRight))
       )
 
       if (isAJunction) {
-        analyzedMaze[rowIdx][colIdx].isJunction = true
         const currentCellNode = new GraphNode(maze[rowIdx][colIdx], rowIdx, colIdx)
         graph.addNode(currentCellNode)
 
@@ -107,7 +78,7 @@ export const makeGraphFromMaze = (maze: string[][], rootCellIndex: TCell, endCel
     }
   }
 
-  // 
+  // This must be done AFTER the graph is populated (with these two nodes)
   graph.setRootNode(rootCellIndex.rowIdx, rootCellIndex.colIdx)
   graph.setEndNode(endCellIndex.rowIdx, endCellIndex.colIdx)
 

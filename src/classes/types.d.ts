@@ -12,3 +12,8 @@ export type TMazeData = {
   startCell: TCell,
   endCell: TCell
 }
+
+export type TLineSegment = {
+  from: TCell;
+  to: TCell;
+}

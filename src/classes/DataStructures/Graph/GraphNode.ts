@@ -1,7 +1,16 @@
 import { GraphNodeLink } from './GraphNodeLink'
 
 /*
+  This version of the GraphNode expects to represent
+  a maze cell (junction), so it will have a rowIdx and colIdx
+  within that 2d array.
 
+  So, this Graph Node is specialized for this task, rather
+  than being a general purpose one.
+
+  I also gave it a public 'id' field, so user-code can keep track
+  of it while traversing the graph (to which this node would belong).
+  The id is a string representation of the 2d array index.
 */
 export class GraphNode {
   data: any;

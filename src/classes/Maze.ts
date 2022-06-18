@@ -1,6 +1,6 @@
 import { isNonEmptyArray } from '../utils'
 import { Graph, GraphNode } from './DataStructures/Graph'
-import { TCell, TMazeData } from './types'
+import { TCell, TMazeData, TLineSegment } from './types'
 import {
   makeGraphFromMaze,
   // solveMazeGraphBreadthFirst,
@@ -8,13 +8,6 @@ import {
 } from './solveMaze'
 
 // ================================================
-
-// To draw the line segments between junction nodes, we
-// need to store the start (from) and endpoints of the line
-type TJunctionLineSegment = {
-  from: TCell;
-  to: TCell;
-}
 
 type MazeFlags = {
   renderMaze: boolean;
@@ -46,18 +39,18 @@ class Maze {
   private containerEl: HTMLDivElement
   private canvasEl: HTMLCanvasElement
   private ctx: CanvasRenderingContext2D
-  private canvasDimensions: number // Pixels
+  private canvasDimensions: number = 100 // Pixels
   private mazeArray: string[][]
   private rootCellIndex: TCell
   private endCellIndex: TCell
-  private graph: Graph | null
+  private graph: Graph | null = null
   //
   private flags: MazeFlags
   // Used for rendering things onto the canvas (the UI)
-  private junctionNodesUI: TCell[]
-  private pathFromStartToEndUI: TCell[]
-  private junctionLinksUI: TJunctionLineSegment[]
-  private cellWidth: number
+  private junctionNodesUI: TCell[] = []
+  private pathFromStartToEndUI: TCell[] = []
+  private junctionLinksUI: TLineSegment[] = []
+  private cellWidth: number = 0
 
   constructor (
     container: HTMLDivElement,
@@ -68,14 +61,9 @@ class Maze {
     this.containerEl = container
     this.canvasEl = canvas
     this.ctx = ctx
-    this.canvasDimensions = 100
     this.mazeArray = mazeData.maze
     this.rootCellIndex = mazeData.startCell
     this.endCellIndex = mazeData.endCell
-    this.junctionNodesUI = []
-    this.junctionLinksUI = []
-    this.pathFromStartToEndUI = []
-    this.graph = null
     //
     this.flags = {
       renderMaze: true,
@@ -84,7 +72,6 @@ class Maze {
     }
 
     //
-    this.cellWidth = 0
     this.onWindowResize()
 
     // Run
@@ -92,16 +79,20 @@ class Maze {
     this.solveMaze()
   }
 
-  bindListeners () {
+  // ======================================================
+  // ========================PUBLIC========================
+  // ======================================================
+
+  bindListeners (): void {
     window.addEventListener('resize', this.onWindowResize)
     this.onWindowResize()
   }
 
-  unBindListeners () {
+  unBindListeners (): void {
     window.removeEventListener('resize', this.onWindowResize)
   }
 
-  onWindowResize = () => {
+  onWindowResize = (): void => {
     const containerRect = this.containerEl.getBoundingClientRect()
     const containerWidth = containerRect.width
     const containerHeight = containerRect.height
@@ -128,7 +119,32 @@ class Maze {
     this.drawCanvas()
   }
 
-  clearCanvas () {
+  updateWhatIsRendered (renderMaze: boolean, renderJunctions: boolean, renderSolution: boolean): void {
+    this.flags.renderMaze = renderMaze
+    this.flags.renderJunctions = renderJunctions
+    this.flags.renderSolution = renderSolution
+    this.drawCanvas()
+  }
+
+  updateMazeData (newMazeData: TMazeData): void {
+    try {
+      const clonedMazeData = JSON.parse(JSON.stringify(newMazeData))
+      this.mazeArray = clonedMazeData.maze
+      this.rootCellIndex = clonedMazeData.startCell
+      this.endCellIndex = clonedMazeData.endCell
+      this.parseMazeIntoGraph()
+      this.solveMaze()
+    } catch (error) {
+      console.log('Could not update (JSON.parse) new maze data!', newMazeData)
+    }
+    this.drawCanvas()
+  }
+
+  // ======================================================
+  // ========================PRIVATE=======================
+  // ======================================================
+
+  private clearCanvas () {
     // Clear the entire canvas (transparent black)
     this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
     // Fill the canvas with a solid color
@@ -136,7 +152,7 @@ class Maze {
     this.ctx.fillRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height)
   }
 
-  drawCanvas () {
+  private drawCanvas () {
     this.clearCanvas()
 
     this.flags.renderMaze && this.drawMaze()
@@ -144,7 +160,7 @@ class Maze {
     this.flags.renderSolution && this.drawSolution()
   }
 
-  drawMaze () {
+  private drawMaze () {
     this.ctx.globalAlpha = 1.0
     for (let rowIdx = 0; rowIdx < this.mazeArray.length; rowIdx++) {
       for (let colIdx = 0; colIdx < this.mazeArray.length; colIdx++) {
@@ -160,7 +176,7 @@ class Maze {
     }
   }
 
-  drawJunctions () {
+  private drawJunctions () {
     // The circle markers that go on each junction
     if (isNonEmptyArray(this.junctionNodesUI)) {
       this.ctx.lineWidth = 1
@@ -228,7 +244,7 @@ class Maze {
     }
   }
 
-  drawSolution () {
+  private drawSolution () {
     this.ctx.globalAlpha = 0.9
     if (isNonEmptyArray(this.pathFromStartToEndUI)) {
       const halfCell = this.cellWidth * .5
@@ -246,28 +262,7 @@ class Maze {
     }
   }
 
-  updateWhatIsRendered (renderMaze: boolean, renderJunctions: boolean, renderSolution: boolean) {
-    this.flags.renderMaze = renderMaze
-    this.flags.renderJunctions = renderJunctions
-    this.flags.renderSolution = renderSolution
-    this.drawCanvas()
-  }
-
-  updateMazeData (newMazeData: TMazeData) {
-    try {
-      const clonedMazeData = JSON.parse(JSON.stringify(newMazeData))
-      this.mazeArray = clonedMazeData.maze
-      this.rootCellIndex = clonedMazeData.startCell
-      this.endCellIndex = clonedMazeData.endCell
-      this.parseMazeIntoGraph()
-      this.solveMaze()
-    } catch (error) {
-      console.log('Could not update (JSON.parse) new maze data!', newMazeData)
-    }
-    this.drawCanvas()
-  }
-
-  solveMaze () {
+  private solveMaze () {
     this.getJunctions()
     if (this.graph) {
       // const pathFromStartToEnd: GraphNode[] = solveMazeGraphBreadthFirst(this.graph, this.mazeArray)
@@ -282,13 +277,13 @@ class Maze {
     this.drawCanvas()
   }
 
-  parseMazeIntoGraph () {
+  private parseMazeIntoGraph () {
     // This will convert the maze to a weighted Graph data structure where
     // all nodes have bi-directional edges
     this.graph = makeGraphFromMaze(this.mazeArray, this.rootCellIndex, this.endCellIndex)
   }
 
-  getJunctions () {
+  private getJunctions () {
     if (!this.graph) {
       return
     }
