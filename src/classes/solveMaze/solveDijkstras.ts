@@ -88,7 +88,7 @@ import { DijkstrasPathLookupTable } from '../DataStructures/DijkstrasPathLookupT
   You can use this same table to work backward from the target node, back to the
   root node by checking the 'PreviousNode' column of the table.
 */
-export const solveMazeGraphDijkstras = (graph: Graph, maze: string[][]): GraphNode[] => {
+export const solveMazeGraphDijkstras = (graph: Graph): GraphNode[] => {
   // The algorithm starts at this node of the graph
   const startingNode = graph.rootNode
   // The algorithm does not care/know about the endingNode technically.

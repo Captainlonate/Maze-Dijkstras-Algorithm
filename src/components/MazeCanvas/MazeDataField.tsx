@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useMazeContext, EMazeActionTypes } from './MazeControlContext'
 import './mazeDataField.css'
-import { TMazeData, TCell } from '../../classes/types'
+import { TMazeData, TCell, CellType } from '../../classes/types'
 
 // ======================Helpers========================
 
@@ -62,7 +62,7 @@ const getInitialMaze = (mazeData: string[][]): string => {
   }
 }
 
-const createMazeData = (grid: string[][]): TMazeData => {
+const createMazeData = (grid: CellType[][]): TMazeData => {
   const startCell = { rowIdx: 0, colIdx: 0 } as TCell
   const endCell = { rowIdx: 0, colIdx: 0 } as TCell
 
@@ -92,7 +92,9 @@ const MazeDataField = () => {
     try {
       // The user might use single quotes, but JSON.parse() needs double quotes
       const fixedQuotes = textAreaText.replaceAll("'", '"')
+      // string[][] because we haven't checked if it has only valid cell string types
       const parsed = JSON.parse(fixedQuotes) as string[][]
+      // Ensure it only has valid "CellType" strings.
       // This will throw an error if it's invalid
       validateGrid(parsed)
       const prettyStr = formatArrayPretty(parsed)
@@ -105,7 +107,8 @@ const MazeDataField = () => {
       if (submitOnSuccess) {
         updateMazeState({
           type: EMazeActionTypes.SET_MAZE_DATA,
-          payload: createMazeData(parsed)
+          // We relied on validateGrid() to ensure that parsed only contains valid cell types
+          payload: createMazeData(parsed as CellType[][])
         })
       }
     } catch (error) {

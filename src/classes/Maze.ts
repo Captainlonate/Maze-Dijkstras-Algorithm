@@ -1,6 +1,6 @@
 import { isNonEmptyArray } from '../utils'
 import { Graph, GraphNode } from './DataStructures/Graph'
-import { TCell, TMazeData, TLineSegment } from './types'
+import { TCell, TMazeData, TLineSegment, CellType } from './types'
 import {
   makeGraphFromMaze,
   // solveMazeGraphBreadthFirst,
@@ -40,7 +40,7 @@ class Maze {
   private canvasEl: HTMLCanvasElement
   private ctx: CanvasRenderingContext2D
   private canvasDimensions: number = 100 // Pixels
-  private mazeArray: string[][]
+  private mazeArray: CellType[][]
   private rootCellIndex: TCell
   private endCellIndex: TCell
   private graph: Graph | null = null
@@ -266,7 +266,7 @@ class Maze {
     this.getJunctions()
     if (this.graph) {
       // const pathFromStartToEnd: GraphNode[] = solveMazeGraphBreadthFirst(this.graph, this.mazeArray)
-      const pathFromStartToEnd: GraphNode[] = solveMazeGraphDijkstras(this.graph, this.mazeArray)
+      const pathFromStartToEnd: GraphNode[] = solveMazeGraphDijkstras(this.graph)
       const solutionPath = pathFromStartToEnd.map((node) => ({
         rowIdx: node.rowIdx, colIdx: node.colIdx
       } as TCell))

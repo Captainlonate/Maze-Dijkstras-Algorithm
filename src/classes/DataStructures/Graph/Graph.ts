@@ -9,10 +9,10 @@ type TGraphNodeLookupTable = {
 
 // =================================================
 
-/*
-  Nodes in this graph will have two-way links between them.
-  
-*/
+/**
+ * A Graph Data structure that relies on GraphNodes to have
+ * GraphNodeLinks to other GraphNodes.
+ */
 export class Graph {
   _nodesObj: TGraphNodeLookupTable;
   rootNode: GraphNode | null;

@@ -1,16 +1,16 @@
 import { Graph, GraphNode } from '../DataStructures/Graph'
-import { TCell } from '../types'
+import { TCell, CellType } from '../types'
 
 /*
   If a user were solving the maze with a pencil, would the cell
   be one where they could draw their line.
 */
-const cellIsWalkable = (val: string) => val !== 'w'
+const cellIsWalkable = (val: CellType) => val !== 'w'
 
 /*
-
+  
 */
-export const makeGraphFromMaze = (maze: string[][], rootCellIndex: TCell, endCellIndex: TCell): Graph => {
+export const makeGraphFromMaze = (maze: CellType[][], rootCellIndex: TCell, endCellIndex: TCell): Graph => {
   // Graph that will be populated and returned
   const graph = new Graph()
 
@@ -19,7 +19,7 @@ export const makeGraphFromMaze = (maze: string[][], rootCellIndex: TCell, endCel
   const topJunctions: (GraphNode | null)[] = (new Array(maze.length)).fill(null)
 
   // Pre-declare these to avoid a lot of garbage collection (for large mazes)
-  let currentCellValue = ''
+  let currentCellValue = undefined
   let canGoUp = false, canGoRight = false, canGoDown = false, canGoLeft = false, isAJunction = false;
 
   for (let rowIdx = 0; rowIdx < maze.length; rowIdx++) {
